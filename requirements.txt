@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+-e git+https://github.com/naktazdim/lr2irscraper.git@v2.1#egg=lr2irscraper
