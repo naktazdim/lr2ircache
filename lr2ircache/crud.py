@@ -1,5 +1,6 @@
 from logging import getLogger
 from datetime import datetime, timedelta
+import bz2
 
 import pause
 from sqlalchemy.orm import Session
@@ -44,3 +45,27 @@ def get_item(db: Session, bmsmd5: str):
         db.refresh(db_item)
 
     return db_item
+
+
+def get_ranking(db: Session, bmsmd5: str):
+    logger = getLogger(__name__)
+
+    db_ranking = db.query(models.Ranking).filter(models.Ranking.bmsmd5 == bmsmd5).one_or_none()
+
+    if db_ranking is None:  # データベース内になかったらLR2IRから情報を読んでキャッシュ
+        logger.info("ranking not found in the database: {}".format(bmsmd5))
+        logger.info("fetch item info from LR2IR ...")
+        wait()
+        ranking_df = lr2irscraper.get_ranking(bmsmd5).to_dataframe()  # LR2IRから情報を読む
+        if len(ranking_df) == 0:
+            logger.info("unregistered in LR2IR".format(bmsmd5))
+            return None  # もしLR2IRにもない譜面だったらNoneを返して修了
+        logger.info("succeeded".format(bmsmd5))
+        # 無事LR2IRからデータが取れたら、データベースにキャッシュしておく
+        ranking_csv_compressed = bz2.compress(ranking_df.to_csv(index=False).encode())  # 容量節約でcsv.bz2にしておく
+        db_ranking = models.Ranking(bmsmd5=bmsmd5, ranking=ranking_csv_compressed)
+        db.add(db_ranking)
+        db.commit()
+        db.refresh(db_ranking)
+
+    return db_ranking

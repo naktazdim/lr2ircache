@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, UniqueConstraint
+from sqlalchemy import Column, Integer, String, LargeBinary, UniqueConstraint
 
 from .database import Base
 
@@ -12,3 +12,11 @@ class Item(Base):
     lr2_id = Column(Integer)
     bmsmd5 = Column(String, unique=True, index=True)
     title = Column(String)
+
+
+class Ranking(Base):
+    __tablename__ = "ranking"
+
+    id = Column(Integer, primary_key=True, index=True)
+    bmsmd5 = Column(String, unique=True, index=True)
+    ranking = Column(LargeBinary)
