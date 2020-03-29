@@ -1,4 +1,5 @@
 import bz2
+from datetime import datetime
 
 from fastapi import Depends, FastAPI, HTTPException, Response
 from sqlalchemy.orm import Session
@@ -7,6 +8,12 @@ from . import crud, models, schemas
 from .database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
+
+session = SessionLocal()
+if session.query(models.LR2IRLastAccessed).one_or_none() is None:
+    session.add(models.LR2IRLastAccessed(last_accessed=datetime.fromtimestamp(0)))
+    session.commit()
+
 
 app = FastAPI()
 

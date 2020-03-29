@@ -21,3 +21,10 @@ class Ranking(Base):
     bmsmd5 = Column(String, unique=True, index=True)
     ranking = Column(LargeBinary)
     last_accessed = Column(DateTime)
+
+
+class LR2IRLastAccessed(Base):
+    __tablename__ = "lr2ir_last_accessed"
+
+    id = Column(Integer, primary_key=True, index=True)
+    last_accessed = Column(DateTime)

@@ -7,22 +7,24 @@ from sqlalchemy.orm import Session
 import lr2irscraper
 
 from . import models
+from .database import SessionLocal
 
-
-lr2ir_last_accessed = datetime.fromtimestamp(0)
 LR2IR_ACCESS_INTERVAL = timedelta(seconds=5)  # ひとまずハードコード
 LR2IR_RANKING_CACHE_EXPIRATION_INTERVAL = timedelta(days=1)  # ひとまずハードコード
 
 
 def wait():
-    global lr2ir_last_accessed
     logger = getLogger(__name__)
 
-    until = lr2ir_last_accessed + LR2IR_ACCESS_INTERVAL
+    session = SessionLocal()
+    db_last_accessed = session.query(models.LR2IRLastAccessed).one()  # type: models.LR2IRLastAccessed
+    until = db_last_accessed.last_accessed + LR2IR_ACCESS_INTERVAL
+    db_last_accessed.last_accessed = max(until, datetime.now())
+    session.commit()
+
     if until > datetime.now():
         logger.info("wait until {}...".format(until.isoformat()))
         pause.until(until)
-    lr2ir_last_accessed = datetime.now()
 
 
 def get_item(db: Session, bmsmd5: str):
