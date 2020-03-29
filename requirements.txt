@@ -2,4 +2,5 @@ fastapi
 uvicorn
 sqlalchemy
 pydantic
+pause
 -e git+https://github.com/naktazdim/lr2irscraper.git@v2.1#egg=lr2irscraper
