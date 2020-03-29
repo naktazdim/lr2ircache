@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, LargeBinary, UniqueConstraint
+from sqlalchemy import Column, Integer, String, LargeBinary, DateTime, UniqueConstraint
 
 from .database import Base
 
@@ -20,3 +20,4 @@ class Ranking(Base):
     id = Column(Integer, primary_key=True, index=True)
     bmsmd5 = Column(String, unique=True, index=True)
     ranking = Column(LargeBinary)
+    last_accessed = Column(DateTime)
