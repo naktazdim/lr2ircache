@@ -3,4 +3,5 @@ uvicorn
 sqlalchemy
 pydantic
 pause
+psycopg2
 -e git+https://github.com/naktazdim/lr2irscraper.git@v2.1#egg=lr2irscraper
