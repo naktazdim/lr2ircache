@@ -3,6 +3,8 @@ from datetime import datetime
 
 from fastapi import Depends, FastAPI, HTTPException, Response
 from sqlalchemy.orm import Session
+import lr2irscraper
+import requests
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
@@ -51,3 +53,12 @@ def read_ranking(bmsmd5: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="item not found")
 
     return Response(content=bz2.decompress(db_ranking.ranking), media_type="text/csv")
+
+
+@app.get("/bms_tables")
+def read_bms_table(url: str):
+    try:
+        return lr2irscraper.get_bms_table(url).to_dict()
+    except requests.HTTPError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+
