@@ -54,7 +54,8 @@ def read_ranking(bmsmd5: str, db: Session = Depends(get_db)):
     if db_ranking is None:
         raise HTTPException(status_code=404, detail="item not found")
 
-    return pd.read_csv(BytesIO(bz2.decompress(db_ranking.ranking))).to_dict(orient="records")
+    # .fillna("") は name が空文字列のときにこけるのを防いでいる (NaN になって JSON 化できないと怒られる)
+    return pd.read_csv(BytesIO(bz2.decompress(db_ranking.ranking))).fillna("").to_dict(orient="records")
 
 
 @app.get("/bms_tables")
