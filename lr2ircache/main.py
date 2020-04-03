@@ -1,10 +1,12 @@
 import bz2
 from datetime import datetime
+from io import BytesIO
 
 from fastapi import Depends, FastAPI, HTTPException, Response
 from sqlalchemy.orm import Session
 import lr2irscraper
 import requests
+import pandas as pd
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
@@ -52,7 +54,7 @@ def read_ranking(bmsmd5: str, db: Session = Depends(get_db)):
     if db_ranking is None:
         raise HTTPException(status_code=404, detail="item not found")
 
-    return Response(content=bz2.decompress(db_ranking.ranking), media_type="text/csv")
+    return pd.read_csv(BytesIO(bz2.decompress(db_ranking.ranking))).to_dict(orient="records")
 
 
 @app.get("/bms_tables")

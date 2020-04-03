@@ -5,4 +5,5 @@ pydantic
 pause
 psycopg2
 requests
+pandas
 -e git+https://github.com/naktazdim/lr2irscraper.git@v2.1#egg=lr2irscraper
