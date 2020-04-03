@@ -1,12 +1,11 @@
 import bz2
 from datetime import datetime
-from io import BytesIO
+import json
 
-from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 import lr2irscraper
 import requests
-import pandas as pd
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
@@ -54,8 +53,8 @@ def read_ranking(bmsmd5: str, db: Session = Depends(get_db)):
     if db_ranking is None:
         raise HTTPException(status_code=404, detail="item not found")
 
-    # .fillna("") は name が空文字列のときにこけるのを防いでいる (NaN になって JSON 化できないと怒られる)
-    return pd.read_csv(BytesIO(bz2.decompress(db_ranking.ranking))).fillna("").to_dict(orient="records")
+    # ↓JSON stringを自分でjson.loadsしてまたFastAPIがJSON encodeして……って無駄だけどわかりやすいので
+    return json.loads(bz2.decompress(db_ranking.ranking))
 
 
 @app.get("/bms_tables")

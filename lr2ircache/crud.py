@@ -73,12 +73,12 @@ def get_ranking(db: Session, bmsmd5: str):
         return None  # もしLR2IRにもない譜面だったらNoneを返して修了
     logger.info("succeeded".format(bmsmd5))
     # 無事LR2IRからデータが取れたら、データベースにキャッシュしておく
-    ranking_csv_compressed = bz2.compress(ranking_df.to_csv(index=False).encode())  # 容量節約でcsv.bz2にしておく
+    ranking_compressed = bz2.compress(ranking_df.to_json(orient="records").encode())
     if db_ranking is None:
-        db_ranking = models.Ranking(bmsmd5=bmsmd5, ranking=ranking_csv_compressed, last_accessed=datetime.now())
+        db_ranking = models.Ranking(bmsmd5=bmsmd5, ranking=ranking_compressed, last_accessed=datetime.now())
         db.add(db_ranking)
     else:
-        db_ranking.ranking = ranking_csv_compressed
+        db_ranking.ranking = ranking_compressed
         db_ranking.last_accessed = datetime.now()
     db.commit()
     db.refresh(db_ranking)
