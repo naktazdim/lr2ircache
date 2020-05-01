@@ -27,10 +27,14 @@ def wait():
         pause.until(until)
 
 
-def get_item(db: Session, bmsmd5: str):
+def get_item(db: Session, bmsmd5: str, no_cache=False):
     logger = getLogger(__name__)
 
     db_item = db.query(models.Item).filter(models.Item.bmsmd5 == bmsmd5).one_or_none()
+    if no_cache and db_item:  # no_cache の場合はデータがあったら削除
+        db.delete(db_item)
+        db.commit()
+        db_item = None
 
     if db_item is None:  # データベース内になかったらLR2IRから情報を読んでキャッシュ
         logger.info("item not found in the database: {}".format(bmsmd5))
@@ -50,10 +54,14 @@ def get_item(db: Session, bmsmd5: str):
     return db_item
 
 
-def get_ranking(db: Session, bmsmd5: str):
+def get_ranking(db: Session, bmsmd5: str, no_cache=False):
     logger = getLogger(__name__)
 
     db_ranking = db.query(models.Ranking).filter(models.Ranking.bmsmd5 == bmsmd5).one_or_none()
+    if no_cache and db_ranking:  # no_cache の場合はデータがあったら削除
+        db.delete(db_ranking)
+        db.commit()
+        db_ranking = None
 
     if db_ranking is None:  # ランキングがキャッシュされていなければ
         logger.info("ranking not found in the database: {}".format(bmsmd5))

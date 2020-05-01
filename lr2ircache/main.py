@@ -31,9 +31,9 @@ def get_db():
 
 
 @app.get("/items/{bmsmd5}", response_model=schemas.Item)
-def read_item(bmsmd5: str, db: Session = Depends(get_db)):
+def read_item(bmsmd5: str, no_cache: bool = False, db: Session = Depends(get_db)):
     try:
-        db_item = crud.get_item(db, bmsmd5)
+        db_item = crud.get_item(db, bmsmd5, no_cache)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -44,9 +44,9 @@ def read_item(bmsmd5: str, db: Session = Depends(get_db)):
 
 
 @app.get("/rankings/{bmsmd5}")
-def read_ranking(bmsmd5: str, db: Session = Depends(get_db)):
+def read_ranking(bmsmd5: str, no_cache: bool = False, db: Session = Depends(get_db)):
     try:
-        db_ranking = crud.get_ranking(db, bmsmd5)
+        db_ranking = crud.get_ranking(db, bmsmd5, no_cache)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
